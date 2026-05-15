@@ -1,6 +1,8 @@
 name: OIDC Template Inspection
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       scenario:
@@ -67,7 +69,7 @@ jobs:
 
       - name: Build template bundle
         env:
-          SCENARIO: ${{ inputs.scenario }}
+          SCENARIO: ${{ inputs.scenario || 'push-template-baseline' }}
         run: |
           jq -n \
             --arg scenario "$SCENARIO" \
@@ -81,7 +83,7 @@ jobs:
       - name: Upload template artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: oidc-template-inspection-${{ inputs.scenario }}-${{ github.run_id }}
+          name: oidc-template-inspection-${{ inputs.scenario || 'push-template-baseline' }}-${{ github.run_id }}
           path: |
             repo-oidc-template.json
             org-oidc-template.json
