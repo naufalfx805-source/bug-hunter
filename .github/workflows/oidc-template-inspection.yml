@@ -1,0 +1,89 @@
+name: OIDC Template Inspection
+
+on:
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: "Label for this run"
+        required: false
+        default: "template-check"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  inspect-template:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect repository OIDC subject template
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          set +e
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2026-03-10" \
+            "/repos/${OWNER}/${REPO}/actions/oidc/customization/sub" \
+            > repo-oidc-template.json
+          status=$?
+          set -e
+
+          if [ "$status" -ne 0 ] || [ ! -s repo-oidc-template.json ]; then
+            cat > repo-oidc-template.json <<'JSON'
+          {
+            "note": "No repository OIDC customization template returned, or token lacks permission."
+          }
+          JSON
+          fi
+
+          cat repo-oidc-template.json
+
+      - name: Inspect organization OIDC subject template
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ORG: ${{ github.repository_owner }}
+        run: |
+          set +e
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2026-03-10" \
+            "/orgs/${ORG}/actions/oidc/customization/sub" \
+            > org-oidc-template.json
+          status=$?
+          set -e
+
+          if [ "$status" -ne 0 ] || [ ! -s org-oidc-template.json ]; then
+            cat > org-oidc-template.json <<'JSON'
+          {
+            "note": "No organization OIDC customization template returned, or token lacks org permission."
+          }
+          JSON
+          fi
+
+          cat org-oidc-template.json
+
+      - name: Build template bundle
+        env:
+          SCENARIO: ${{ inputs.scenario }}
+        run: |
+          jq -n \
+            --arg scenario "$SCENARIO" \
+            --arg captured_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --slurpfile repo repo-oidc-template.json \
+            --slurpfile org org-oidc-template.json \
+            '{scenario:$scenario,captured_at:$captured_at,repo_template:$repo[0],org_template:$org[0]}' \
+            > oidc-template-inspection.json
+          cat oidc-template-inspection.json
+
+      - name: Upload template artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: oidc-template-inspection-${{ inputs.scenario }}-${{ github.run_id }}
+          path: |
+            repo-oidc-template.json
+            org-oidc-template.json
+            oidc-template-inspection.json
+          retention-days: 14
