@@ -1,6 +1,8 @@
 name: OIDC Claim Inspection
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       audience:
@@ -23,13 +25,14 @@ jobs:
       - name: Request and decode OIDC claims
         uses: actions/github-script@v7
         env:
-          SCENARIO: ${{ inputs.scenario }}
+          AUDIENCE: ${{ inputs.audience || 'https://example.invalid/oidc-subject-lab' }}
+          SCENARIO: ${{ inputs.scenario || 'push-baseline' }}
         with:
           script: |
             const fs = require("fs");
             const core = require("@actions/core");
 
-            const audience = core.getInput("audience");
+            const audience = process.env.AUDIENCE;
             const token = await core.getIDToken(audience);
             const claims = JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString("utf8"));
 
@@ -76,6 +79,6 @@ jobs:
       - name: Upload decoded claims artifact
         uses: actions/upload-artifact@v4
         with:
-          name: oidc-claims-${{ inputs.scenario }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: oidc-claims-${{ inputs.scenario || 'push-baseline' }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: oidc-claims.json
           retention-days: 14
