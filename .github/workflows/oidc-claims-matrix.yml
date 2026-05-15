@@ -1,0 +1,51 @@
+name: OIDC Claims Matrix
+
+on:
+  workflow_dispatch:
+    inputs:
+      audience:
+        description: "OIDC audience value"
+        required: false
+        default: "https://example.invalid/oidc-subject-lab"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  inspect:
+    strategy:
+      fail-fast: false
+      matrix:
+        ref_label: [current-ref]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decode OIDC claims for matrix run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const core = require("@actions/core");
+            const audience = core.getInput("audience");
+            const token = await core.getIDToken(audience);
+            const claims = JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString("utf8"));
+
+            const keys = [
+              "iss", "aud", "sub", "repository", "repository_id",
+              "repository_owner", "repository_owner_id", "ref",
+              "job_workflow_ref", "workflow", "event_name"
+            ];
+            const out = {
+              captured_at: new Date().toISOString(),
+              scenario: "matrix-current-ref",
+              oidc_claims: Object.fromEntries(keys.map((key) => [key, claims[key] ?? null]))
+            };
+            fs.writeFileSync("oidc-claims-matrix.json", JSON.stringify(out, null, 2));
+            console.log(JSON.stringify(out, null, 2));
+
+      - name: Upload matrix claims
+        uses: actions/upload-artifact@v4
+        with:
+          name: oidc-claims-matrix-${{ github.run_id }}-${{ github.run_attempt }}
+          path: oidc-claims-matrix.json
+          retention-days: 14
