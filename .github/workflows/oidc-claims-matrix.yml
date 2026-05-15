@@ -22,11 +22,12 @@ jobs:
     steps:
       - name: Decode OIDC claims for matrix run
         uses: actions/github-script@v7
+        env:
+          AUDIENCE: ${{ inputs.audience || 'https://example.invalid/oidc-subject-lab' }}
         with:
           script: |
             const fs = require("fs");
-            const core = require("@actions/core");
-            const audience = core.getInput("audience");
+            const audience = process.env.AUDIENCE;
             const token = await core.getIDToken(audience);
             const claims = JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString("utf8"));
 
