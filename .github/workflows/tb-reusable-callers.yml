@@ -1,0 +1,17 @@
+name: TB Reusable Callers
+
+on:
+  push:
+    branches:
+      - main
+      - "tb-lowtrust-*"
+
+jobs:
+  caller_with_id_token:
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    uses: ./.github/workflows/tb-reusable-callee.yml
+    with:
+      scenario: reusable-caller-with-id-token
