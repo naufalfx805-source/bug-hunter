@@ -1,0 +1,96 @@
+name: TB Reusable Callee
+
+on:
+  workflow_call:
+    inputs:
+      scenario:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+
+jobs:
+  callee:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe callee OIDC permission
+        uses: actions/github-script@v7
+        env:
+          SCENARIO: ${{ inputs.scenario }}
+        with:
+          script: |
+            const fs = require("fs");
+            const evidence = {
+              scenario: process.env.SCENARIO,
+              configured_permissions: {
+                callee_workflow: {
+                  contents: "read",
+                  actions: "read",
+                  id_token: "write"
+                }
+              },
+              github_context: {
+                workflow: process.env.GITHUB_WORKFLOW,
+                event_name: process.env.GITHUB_EVENT_NAME,
+                actor: process.env.GITHUB_ACTOR,
+                repository: process.env.GITHUB_REPOSITORY,
+                ref: process.env.GITHUB_REF,
+                ref_name: process.env.GITHUB_REF_NAME,
+                sha: process.env.GITHUB_SHA,
+                run_id: process.env.GITHUB_RUN_ID,
+                run_attempt: process.env.GITHUB_RUN_ATTEMPT
+              },
+              oidc_probe: {
+                success: false,
+                error_name: null,
+                error_message: null,
+                selected_claims: null
+              }
+            };
+
+            try {
+              const token = await core.getIDToken("https://example.invalid/tb-reusable-callee");
+              const claims = JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString("utf8"));
+              evidence.oidc_probe.success = true;
+              evidence.oidc_probe.selected_claims = {
+                iss: claims.iss,
+                aud: claims.aud,
+                sub: claims.sub,
+                repository: claims.repository,
+                repository_id: claims.repository_id,
+                repository_owner: claims.repository_owner,
+                repository_owner_id: claims.repository_owner_id,
+                ref: claims.ref,
+                sha: claims.sha,
+                workflow: claims.workflow,
+                job_workflow_ref: claims.job_workflow_ref,
+                job_workflow_sha: claims.job_workflow_sha,
+                event_name: claims.event_name,
+                actor: claims.actor,
+                actor_id: claims.actor_id,
+                run_id: claims.run_id,
+                run_attempt: claims.run_attempt
+              };
+            } catch (error) {
+              evidence.oidc_probe.error_name = error.name;
+              evidence.oidc_probe.error_message = error.message;
+            }
+
+            evidence.classification = evidence.oidc_probe.success
+              ? "interesting_callee_obtained_oidc"
+              : "expected_caller_permission_prevented_oidc";
+
+            fs.mkdirSync("tb-evidence", { recursive: true });
+            fs.writeFileSync("tb-evidence/reusable-callee-" + process.env.SCENARIO + ".json", JSON.stringify(evidence, null, 2));
+            core.info(JSON.stringify(evidence, null, 2));
+
+      - name: Upload reusable callee evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: tb-reusable-callee-${{ inputs.scenario }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tb-evidence/reusable-callee-${{ inputs.scenario }}.json
+          retention-days: 14
+
