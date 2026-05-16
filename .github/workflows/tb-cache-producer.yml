@@ -1,0 +1,64 @@
+name: TB Cache Producer
+
+on:
+  push:
+    branches:
+      - "tb-lowtrust-*"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  save-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout triggering ref
+        uses: actions/checkout@v4
+
+      - name: Prepare cache payload and evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          marker="cache-marker-${GITHUB_REF_NAME}-${GITHUB_RUN_ID}"
+          if [[ -f .tb-cache-marker ]]; then
+            marker="$(cat .tb-cache-marker)"
+          fi
+          mkdir -p tb-cache-payload tb-evidence
+          printf "%s\n" "${marker}" > tb-cache-payload/marker.txt
+          cat > tb-evidence/cache-producer.json <<JSON
+          {
+            "scenario": "cache_producer",
+            "configured_permissions": {
+              "contents": "read",
+              "actions": "read"
+            },
+            "cache_key": "tb-cross-branch-cache-v1",
+            "marker": "${marker}",
+            "github_context": {
+              "workflow": "${GITHUB_WORKFLOW}",
+              "event_name": "${GITHUB_EVENT_NAME}",
+              "actor": "${GITHUB_ACTOR}",
+              "repository": "${GITHUB_REPOSITORY}",
+              "ref": "${GITHUB_REF}",
+              "ref_name": "${GITHUB_REF_NAME}",
+              "sha": "${GITHUB_SHA}",
+              "run_id": "${GITHUB_RUN_ID}",
+              "run_attempt": "${GITHUB_RUN_ATTEMPT}"
+            }
+          }
+          JSON
+          cat tb-evidence/cache-producer.json
+
+      - name: Save deterministic cache
+        uses: actions/cache/save@v4
+        with:
+          path: tb-cache-payload
+          key: tb-cross-branch-cache-v1
+
+      - name: Upload cache producer evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: tb-cache-producer-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tb-evidence/cache-producer.json
+          retention-days: 14

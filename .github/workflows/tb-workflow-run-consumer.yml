@@ -1,0 +1,115 @@
+name: TB Workflow Run Consumer
+
+on:
+  workflow_run:
+    workflows:
+      - TB Workflow Run Producer
+    types:
+      - completed
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  consume:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download triggering run artifact
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: tb-downloaded
+
+      - name: Capture consumer evidence
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const path = require("path");
+
+            const downloaded = [];
+            function walk(dir) {
+              for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                const full = path.join(dir, entry.name);
+                if (entry.isDirectory()) walk(full);
+                else downloaded.push(full);
+              }
+            }
+            if (fs.existsSync("tb-downloaded")) walk("tb-downloaded");
+
+            const producerFiles = downloaded.filter((file) => file.endsWith("producer.json"));
+            const producer = producerFiles.length
+              ? JSON.parse(fs.readFileSync(producerFiles[0], "utf8"))
+              : null;
+
+            const run = context.payload.workflow_run;
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: run.id
+            });
+
+            const evidence = {
+              scenario: "workflow_run_artifact_trust_consumer",
+              configured_permissions: {
+                contents: "read",
+                actions: "read"
+              },
+              consumer_context: {
+                workflow: process.env.GITHUB_WORKFLOW,
+                event_name: process.env.GITHUB_EVENT_NAME,
+                actor: process.env.GITHUB_ACTOR,
+                repository: process.env.GITHUB_REPOSITORY,
+                ref: process.env.GITHUB_REF,
+                ref_name: process.env.GITHUB_REF_NAME,
+                sha: process.env.GITHUB_SHA,
+                run_id: process.env.GITHUB_RUN_ID,
+                run_attempt: process.env.GITHUB_RUN_ATTEMPT
+              },
+              triggering_workflow_run: {
+                id: run.id,
+                name: run.name,
+                event: run.event,
+                status: run.status,
+                conclusion: run.conclusion,
+                head_branch: run.head_branch,
+                head_sha: run.head_sha,
+                path: run.path,
+                run_attempt: run.run_attempt,
+                actor_login: run.actor && run.actor.login,
+                triggering_actor_login: run.triggering_actor && run.triggering_actor.login,
+                head_repository_full_name: run.head_repository && run.head_repository.full_name,
+                head_repository_id: run.head_repository && run.head_repository.id,
+                repository_full_name: run.repository && run.repository.full_name,
+                repository_id: run.repository && run.repository.id
+              },
+              artifacts: artifacts.data.artifacts.map((artifact) => ({
+                id: artifact.id,
+                name: artifact.name,
+                size_in_bytes: artifact.size_in_bytes,
+                expired: artifact.expired,
+                created_at: artifact.created_at,
+                updated_at: artifact.updated_at,
+                expires_at: artifact.expires_at,
+                workflow_run: artifact.workflow_run
+              })),
+              downloaded_files: downloaded,
+              producer_artifact: producer,
+              classification: producer && producer.github_context.ref_name !== "main"
+                ? "interesting_expected_workflow_run_consumes_non_default_branch_artifact"
+                : "expected_default_branch_artifact"
+            };
+
+            fs.mkdirSync("tb-evidence", { recursive: true });
+            fs.writeFileSync("tb-evidence/workflow-run-consumer.json", JSON.stringify(evidence, null, 2));
+            core.info(JSON.stringify(evidence, null, 2));
+
+      - name: Upload consumer evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: tb-workflow-run-consumer-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tb-evidence/workflow-run-consumer.json
+          retention-days: 14
+
