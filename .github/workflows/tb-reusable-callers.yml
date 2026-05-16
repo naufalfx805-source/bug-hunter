@@ -7,14 +7,6 @@ on:
       - "tb-lowtrust-*"
 
 jobs:
-  caller_without_id_token:
-    permissions:
-      contents: read
-      actions: read
-    uses: ./.github/workflows/tb-reusable-callee.yml
-    with:
-      scenario: reusable-caller-without-id-token
-
   caller_with_id_token:
     permissions:
       contents: read
@@ -23,4 +15,3 @@ jobs:
     uses: ./.github/workflows/tb-reusable-callee.yml
     with:
       scenario: reusable-caller-with-id-token
-
