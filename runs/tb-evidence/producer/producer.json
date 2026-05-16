@@ -1,0 +1,20 @@
+{
+  "scenario": "workflow_run_artifact_trust_producer",
+  "configured_permissions": {
+    "contents": "read",
+    "actions": "read"
+  },
+  "marker": "LOWTRUST_ARTIFACT_MARKER_2026-05-17TLOCAL",
+  "github_context": {
+    "workflow": "TB Workflow Run Producer",
+    "event_name": "push",
+    "actor": "naufalfx805-source",
+    "repository": "naufalfx805-source/bug-hunter",
+    "repository_owner": "naufalfx805-source",
+    "ref": "refs/heads/tb-lowtrust-artifact-cache",
+    "ref_name": "tb-lowtrust-artifact-cache",
+    "sha": "97fbabc70dbd0580693d6afddbe21879ead832f7",
+    "run_id": "25973784146",
+    "run_attempt": "1"
+  }
+}

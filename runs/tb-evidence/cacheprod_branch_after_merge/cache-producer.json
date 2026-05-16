@@ -1,0 +1,20 @@
+{
+  "scenario": "cache_producer",
+  "configured_permissions": {
+    "contents": "read",
+    "actions": "read"
+  },
+  "cache_key": "tb-cross-branch-cache-v1",
+  "marker": "LOWTRUST_CACHE_MARKER_2026-05-17TLOCAL",
+  "github_context": {
+    "workflow": "TB Cache Producer",
+    "event_name": "push",
+    "actor": "naufalfx805-source",
+    "repository": "naufalfx805-source/bug-hunter",
+    "ref": "refs/heads/tb-lowtrust-artifact-cache",
+    "ref_name": "tb-lowtrust-artifact-cache",
+    "sha": "abe565d32b48324dfc335d8dee51f9f828584abc",
+    "run_id": "25973891794",
+    "run_attempt": "1"
+  }
+}

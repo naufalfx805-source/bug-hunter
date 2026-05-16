@@ -1,0 +1,77 @@
+{
+  "scenario": "workflow_run_artifact_trust_consumer",
+  "configured_permissions": {
+    "contents": "read",
+    "actions": "read"
+  },
+  "consumer_context": {
+    "workflow": "TB Workflow Run Consumer",
+    "event_name": "workflow_run",
+    "actor": "naufalfx805-source",
+    "repository": "naufalfx805-source/bug-hunter",
+    "ref": "refs/heads/main",
+    "ref_name": "main",
+    "sha": "314bda21d9a91e99f92f5026481245cdedecd0b4",
+    "run_id": "25973895584",
+    "run_attempt": "1"
+  },
+  "triggering_workflow_run": {
+    "id": 25973891795,
+    "name": "TB Workflow Run Producer",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "head_branch": "tb-lowtrust-artifact-cache",
+    "head_sha": "abe565d32b48324dfc335d8dee51f9f828584abc",
+    "path": ".github/workflows/tb-workflow-run-producer.yml",
+    "run_attempt": 1,
+    "actor_login": "naufalfx805-source",
+    "triggering_actor_login": "naufalfx805-source",
+    "head_repository_full_name": "naufalfx805-source/bug-hunter",
+    "head_repository_id": 1240090635,
+    "repository_full_name": "naufalfx805-source/bug-hunter",
+    "repository_id": 1240090635
+  },
+  "artifacts": [
+    {
+      "id": 7037007045,
+      "name": "tb-workflow-run-producer-25973891795-1",
+      "size_in_bytes": 481,
+      "expired": false,
+      "created_at": "2026-05-16T21:52:24Z",
+      "updated_at": "2026-05-16T21:52:24Z",
+      "expires_at": "2026-05-30T21:52:23Z",
+      "workflow_run": {
+        "id": 25973891795,
+        "repository_id": 1240090635,
+        "head_repository_id": 1240090635,
+        "head_branch": "tb-lowtrust-artifact-cache",
+        "head_sha": "abe565d32b48324dfc335d8dee51f9f828584abc"
+      }
+    }
+  ],
+  "downloaded_files": [
+    "tb-downloaded/tb-workflow-run-producer-25973891795-1/producer.json"
+  ],
+  "producer_artifact": {
+    "scenario": "workflow_run_artifact_trust_producer",
+    "configured_permissions": {
+      "contents": "read",
+      "actions": "read"
+    },
+    "marker": "LOWTRUST_ARTIFACT_MARKER_2026-05-17TLOCAL",
+    "github_context": {
+      "workflow": "TB Workflow Run Producer",
+      "event_name": "push",
+      "actor": "naufalfx805-source",
+      "repository": "naufalfx805-source/bug-hunter",
+      "repository_owner": "naufalfx805-source",
+      "ref": "refs/heads/tb-lowtrust-artifact-cache",
+      "ref_name": "tb-lowtrust-artifact-cache",
+      "sha": "abe565d32b48324dfc335d8dee51f9f828584abc",
+      "run_id": "25973891795",
+      "run_attempt": "1"
+    }
+  },
+  "classification": "interesting_expected_workflow_run_consumes_non_default_branch_artifact"
+}

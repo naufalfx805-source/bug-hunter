@@ -1,0 +1,22 @@
+{
+  "scenario": "cache_consumer_main_restore",
+  "configured_permissions": {
+    "contents": "read",
+    "actions": "read"
+  },
+  "cache_key": "tb-cross-branch-cache-v1",
+  "cache_hit": "",
+  "restored_marker": "",
+  "classification": "expected_no_cross_branch_cache_restore",
+  "github_context": {
+    "workflow": "TB Cache Consumer",
+    "event_name": "push",
+    "actor": "naufalfx805-source",
+    "repository": "naufalfx805-source/bug-hunter",
+    "ref": "refs/heads/main",
+    "ref_name": "main",
+    "sha": "51a138d61701c89b127de17004bb2e536e768f51",
+    "run_id": "25973781614",
+    "run_attempt": "1"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "scenario": "reusable-caller-with-id-token",
+  "configured_permissions": {
+    "callee_workflow": {
+      "contents": "read",
+      "actions": "read",
+      "id_token": "write"
+    }
+  },
+  "github_context": {
+    "workflow": "TB Reusable Callers",
+    "event_name": "push",
+    "actor": "naufalfx805-source",
+    "repository": "naufalfx805-source/bug-hunter",
+    "ref": "refs/heads/main",
+    "ref_name": "main",
+    "sha": "314bda21d9a91e99f92f5026481245cdedecd0b4",
+    "run_id": "25973872730",
+    "run_attempt": "1"
+  },
+  "oidc_probe": {
+    "success": true,
+    "error_name": null,
+    "error_message": null,
+    "selected_claims": {
+      "iss": "https://token.actions.githubusercontent.com",
+      "aud": "https://example.invalid/tb-reusable-callee",
+      "sub": "repo:naufalfx805-source/bug-hunter:ref:refs/heads/main",
+      "repository": "naufalfx805-source/bug-hunter",
+      "repository_id": "1240090635",
+      "repository_owner": "naufalfx805-source",
+      "repository_owner_id": "266911045",
+      "ref": "refs/heads/main",
+      "sha": "314bda21d9a91e99f92f5026481245cdedecd0b4",
+      "workflow": "TB Reusable Callers",
+      "job_workflow_ref": "naufalfx805-source/bug-hunter/.github/workflows/tb-reusable-callee.yml@refs/heads/main",
+      "job_workflow_sha": "314bda21d9a91e99f92f5026481245cdedecd0b4",
+      "event_name": "push",
+      "actor": "naufalfx805-source",
+      "actor_id": "266911045",
+      "run_id": "25973872730",
+      "run_attempt": "1"
+    }
+  },
+  "classification": "interesting_callee_obtained_oidc"
+}

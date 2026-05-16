@@ -1,0 +1,77 @@
+{
+  "scenario": "workflow_run_artifact_trust_consumer",
+  "configured_permissions": {
+    "contents": "read",
+    "actions": "read"
+  },
+  "consumer_context": {
+    "workflow": "TB Workflow Run Consumer",
+    "event_name": "workflow_run",
+    "actor": "naufalfx805-source",
+    "repository": "naufalfx805-source/bug-hunter",
+    "ref": "refs/heads/main",
+    "ref_name": "main",
+    "sha": "e7504e2b4c6b557b0964d50b04dafe2348ec8fba",
+    "run_id": "25973814493",
+    "run_attempt": "1"
+  },
+  "triggering_workflow_run": {
+    "id": 25973810192,
+    "name": "TB Workflow Run Producer",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "head_branch": "main",
+    "head_sha": "e7504e2b4c6b557b0964d50b04dafe2348ec8fba",
+    "path": ".github/workflows/tb-workflow-run-producer.yml",
+    "run_attempt": 1,
+    "actor_login": "naufalfx805-source",
+    "triggering_actor_login": "naufalfx805-source",
+    "head_repository_full_name": "naufalfx805-source/bug-hunter",
+    "head_repository_id": 1240090635,
+    "repository_full_name": "naufalfx805-source/bug-hunter",
+    "repository_id": 1240090635
+  },
+  "artifacts": [
+    {
+      "id": 7036982236,
+      "name": "tb-workflow-run-producer-25973810192-1",
+      "size_in_bytes": 433,
+      "expired": false,
+      "created_at": "2026-05-16T21:48:31Z",
+      "updated_at": "2026-05-16T21:48:31Z",
+      "expires_at": "2026-05-30T21:48:30Z",
+      "workflow_run": {
+        "id": 25973810192,
+        "repository_id": 1240090635,
+        "head_repository_id": 1240090635,
+        "head_branch": "main",
+        "head_sha": "e7504e2b4c6b557b0964d50b04dafe2348ec8fba"
+      }
+    }
+  ],
+  "downloaded_files": [
+    "tb-downloaded/tb-workflow-run-producer-25973810192-1/producer.json"
+  ],
+  "producer_artifact": {
+    "scenario": "workflow_run_artifact_trust_producer",
+    "configured_permissions": {
+      "contents": "read",
+      "actions": "read"
+    },
+    "marker": "default-marker",
+    "github_context": {
+      "workflow": "TB Workflow Run Producer",
+      "event_name": "push",
+      "actor": "naufalfx805-source",
+      "repository": "naufalfx805-source/bug-hunter",
+      "repository_owner": "naufalfx805-source",
+      "ref": "refs/heads/main",
+      "ref_name": "main",
+      "sha": "e7504e2b4c6b557b0964d50b04dafe2348ec8fba",
+      "run_id": "25973810192",
+      "run_attempt": "1"
+    }
+  },
+  "classification": "expected_default_branch_artifact"
+}
